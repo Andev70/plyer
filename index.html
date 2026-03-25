@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plyer - Modern Video Player</title>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script type="module">
+        import Plyer from './src/main.js';
+        
+        const player = new Plyer('#player', {
+            sources: [
+                { label: '720p', src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+                { label: '480p', src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+                { label: '360p', src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }
+            ]
+        });
+    </script>
+</body>
+</html>

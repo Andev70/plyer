@@ -1,0 +1,32 @@
+{
+  "name": "plyer-video",
+  "version": "1.0.1",
+  "description": "A beautiful, responsive, and feature-rich web video player.",
+  "main": "./dist/plyer.umd.cjs",
+  "module": "./dist/plyer.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview"
+  },
+  "keywords": [
+    "video",
+    "player",
+    "html5",
+    "responsive",
+    "ui",
+    "custom-controls"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "dashjs": "^5.1.1",
+    "hls.js": "^1.6.15"
+  }
+}
