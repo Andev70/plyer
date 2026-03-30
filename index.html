@@ -5,8 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plyer - Modern Video Player</title>
 </head>
+<style>
+    body {
+        background: #0b0e14;
+        display: flex;
+        justify-content: center;
+        padding-top: 50px;
+        margin: 0;
+    }
+    .wrapper {
+        width: 800px;
+        max-width: 95%;
+    }
+</style>
 <body>
-    <div id="player"></div>
+    <div class="wrapper">
+        <div id="player"></div>
+    </div>
 
     <script type="module">
         import Plyer from './src/main.js';
