@@ -56,92 +56,113 @@ class Plyer {
 
   setupManualQualityMenu() {
     this.qualitySelector.style.display = 'flex';
-    this.qualityMenu.innerHTML = this.options.sources.map((source, index) => `
-      <button data-index="${index}" class="${source.src === this.currentSource ? 'active' : ''}">
-        <span>${source.label}</span>
-        ${this.getCheckIcon()}
-      </button>
-    `).join('');
-
-    const activeSource = this.options.sources.find(s => s.src === this.currentSource);
-    if (activeSource) this.updateQualityLabel(activeSource.label);
-
-    this.qualityMenu.querySelectorAll('button').forEach(btn => {
+    this.qualityMenu.innerHTML = '';
+    
+    this.options.sources.forEach((source, index) => {
+      const btn = document.createElement('button');
+      if (source.src === this.currentSource) btn.classList.add('active');
+      btn.dataset.index = index;
+      
+      const span = document.createElement('span');
+      span.textContent = source.label;
+      btn.appendChild(span);
+      btn.innerHTML += this.getCheckIcon();
+      
       btn.addEventListener('click', () => {
-        const index = btn.dataset.index;
-        const source = this.options.sources[index];
+        const idx = btn.dataset.index;
+        const src = this.options.sources[idx];
         const currentTime = this.video.currentTime;
         const isPaused = this.video.paused;
 
-        this.currentSource = source.src;
-        this.loadSource(source.src);
+        this.currentSource = src.src;
+        this.loadSource(src.src);
         
         this.video.addEventListener('loadeddata', () => {
           this.video.currentTime = currentTime;
           if (!isPaused) this.video.play();
         }, { once: true });
 
-        this.updateQualityLabel(source.label);
+        this.updateQualityLabel(src.label);
         this.qualityMenu.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.qualityMenu.classList.remove('show');
       });
+      this.qualityMenu.appendChild(btn);
     });
+
+    const activeSource = this.options.sources.find(s => s.src === this.currentSource);
+    if (activeSource) this.updateQualityLabel(activeSource.label);
   }
 
   setupHlsQualityMenu() {
     this.qualitySelector.style.display = 'flex';
     const levels = this.hls.levels;
-    let menuHtml = `<button data-level="-1" class="active"><span>Auto</span>${this.getCheckIcon()}</button>`;
-    
-    levels.forEach((level, index) => {
-      const label = level.height ? `${level.height}p` : `Level ${index}`;
-      menuHtml += `<button data-level="${index}"><span>${label}</span>${this.getCheckIcon()}</button>`;
-    });
+    this.qualityMenu.innerHTML = '';
 
-    this.qualityMenu.innerHTML = menuHtml;
-    this.updateQualityLabel('Auto');
-
-    this.qualityMenu.querySelectorAll('button').forEach(btn => {
+    const createBtn = (label, levelIndex, isActive) => {
+      const btn = document.createElement('button');
+      if (isActive) btn.classList.add('active');
+      btn.dataset.level = levelIndex;
+      const span = document.createElement('span');
+      span.textContent = label;
+      btn.appendChild(span);
+      btn.innerHTML += this.getCheckIcon();
       btn.addEventListener('click', () => {
         const level = parseInt(btn.dataset.level);
         this.hls.currentLevel = level;
-        this.updateQualityLabel(btn.querySelector('span').textContent);
+        this.updateQualityLabel(span.textContent);
         this.qualityMenu.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.qualityMenu.classList.remove('show');
       });
+      return btn;
+    };
+
+    this.qualityMenu.appendChild(createBtn('Auto', -1, true));
+    levels.forEach((level, index) => {
+      const label = level.height ? `${level.height}p` : `Level ${index}`;
+      this.qualityMenu.appendChild(createBtn(label, index, false));
     });
+
+    this.updateQualityLabel('Auto');
   }
 
   setupDashQualityMenu() {
     this.qualitySelector.style.display = 'flex';
     const bitrates = this.dash.getBitrateInfoListFor('video');
-    let menuHtml = `<button data-index="-1" class="active"><span>Auto</span>${this.getCheckIcon()}</button>`;
-    
-    bitrates.forEach((info, index) => {
-      const label = info.height ? `${info.height}p` : `${Math.round(info.bitrate / 1000)}kbps`;
-      menuHtml += `<button data-index="${index}"><span>${label}</span>${this.getCheckIcon()}</button>`;
-    });
+    this.qualityMenu.innerHTML = '';
 
-    this.qualityMenu.innerHTML = menuHtml;
-    this.updateQualityLabel('Auto');
-
-    this.qualityMenu.querySelectorAll('button').forEach(btn => {
+    const createBtn = (label, index, isActive) => {
+      const btn = document.createElement('button');
+      if (isActive) btn.classList.add('active');
+      btn.dataset.index = index;
+      const span = document.createElement('span');
+      span.textContent = label;
+      btn.appendChild(span);
+      btn.innerHTML += this.getCheckIcon();
       btn.addEventListener('click', () => {
-        const index = parseInt(btn.dataset.index);
-        if (index === -1) {
+        const idx = parseInt(btn.dataset.index);
+        if (idx === -1) {
           this.dash.updateSettings({ streaming: { abr: { autoSwitchBitrate: { video: true } } } });
         } else {
           this.dash.updateSettings({ streaming: { abr: { autoSwitchBitrate: { video: false } } } });
-          this.dash.setQualityFor('video', index);
+          this.dash.setQualityFor('video', idx);
         }
-        this.updateQualityLabel(btn.querySelector('span').textContent);
+        this.updateQualityLabel(span.textContent);
         this.qualityMenu.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.qualityMenu.classList.remove('show');
       });
+      return btn;
+    };
+
+    this.qualityMenu.appendChild(createBtn('Auto', -1, true));
+    bitrates.forEach((info, index) => {
+      const label = info.height ? `${info.height}p` : `${Math.round(info.bitrate / 1000)}kbps`;
+      this.qualityMenu.appendChild(createBtn(label, index, false));
     });
+
+    this.updateQualityLabel('Auto');
   }
 
   captureFirstFrame() {
@@ -169,7 +190,7 @@ class Plyer {
   render() {
     this.container.classList.add('video-container');
     this.container.innerHTML = `
-      <video class="video" id="plyer-video" preload="metadata" playsinline poster="${this.options.poster}">
+      <video class="video" id="plyer-video" preload="metadata" playsinline>
           Your browser does not support the video tag.
       </video>
 
@@ -295,6 +316,9 @@ class Plyer {
 
   initElements() {
     this.video = this.container.querySelector('video');
+    if (this.options.poster) {
+      this.video.setAttribute('poster', this.options.poster);
+    }
     this.playPauseBtn = this.container.querySelector('#play-pause-btn');
     this.playIcon = this.container.querySelector('.play-icon');
     this.pauseIcon = this.container.querySelector('.pause-icon');
@@ -425,25 +449,29 @@ class Plyer {
       this.qualityMenu.classList.remove('show');
     });
 
-    this.speedMenu.innerHTML = `
-      <button data-speed="0.5"><span>0.5x</span>${this.getCheckIcon()}</button>
-      <button data-speed="1" class="active"><span>1x</span>${this.getCheckIcon()}</button>
-      <button data-speed="1.5"><span>1.5x</span>${this.getCheckIcon()}</button>
-      <button data-speed="2"><span>2x</span>${this.getCheckIcon()}</button>
-    `;
-
-    this.speedButtons = this.container.querySelectorAll('.speed-menu button');
-
-    this.speedButtons.forEach(btn => {
+    this.speedMenu.innerHTML = '';
+    const speeds = [0.5, 1, 1.5, 2];
+    speeds.forEach(speed => {
+      const btn = document.createElement('button');
+      if (speed === 1) btn.classList.add('active');
+      btn.dataset.speed = speed;
+      
+      const span = document.createElement('span');
+      span.textContent = `${speed}x`;
+      btn.appendChild(span);
+      btn.innerHTML += this.getCheckIcon();
+      
       btn.addEventListener('click', () => {
-        const speed = btn.dataset.speed;
         this.video.playbackRate = speed;
         this.speedBtn.textContent = `${speed}x`;
-        this.speedButtons.forEach(b => b.classList.remove('active'));
+        this.speedMenu.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.speedMenu.classList.remove('show');
       });
+      this.speedMenu.appendChild(btn);
     });
+
+    this.speedButtons = this.speedMenu.querySelectorAll('button');
 
     this.pipBtn.addEventListener('click', () => this.togglePiP());
     this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
