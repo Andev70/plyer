@@ -1,16 +1,19 @@
 {
   "name": "plyer-video",
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "type": "module",
   "description": "A beautiful, responsive, and feature-rich web video player.",
   "main": "./dist/plyer.umd.cjs",
   "module": "./dist/plyer.js",
+  "style": "./dist/style.css",
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "vite preview"
+    "start": "vite",
+    "preview": "vite preview"
   },
   "keywords": [
     "video",
@@ -18,10 +21,20 @@
     "html5",
     "responsive",
     "ui",
-    "custom-controls"
+    "custom-controls",
+    "hls",
+    "dash"
   ],
-  "author": "",
+  "author": "Your Name <your.email@example.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/plyer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/plyer/issues"
+  },
+  "homepage": "https://github.com/yourusername/plyer#readme",
   "devDependencies": {
     "vite": "^5.0.0"
   },
